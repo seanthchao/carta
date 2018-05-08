@@ -30,6 +30,8 @@
 #include <memory>
 #include <set>
 
+#include "lm.helloworld.pb.h"
+
 
 using namespace std;
 
@@ -551,6 +553,20 @@ void Controller::_onInputEvent( InputEvent  ev ){
 }
 
 void Controller::_initializeCallbacks(){
+
+    addCommandCallback( "testProtoBuf", [=] (const QString & /*cmd*/,
+            const QString & params, const QString & /*sessionId*/) -> QString {
+        QString result;
+        std::string data;
+        lm::helloworld msg1;
+        msg1.set_id(101);
+        msg1.set_str("hello");
+        msg1.SerializeToString(&data);
+        result = QString::fromStdString(data);
+        return result;
+    });
+
+
     addCommandCallback( "hideImage", [=] (const QString & /*cmd*/,
                         const QString & params, const QString & /*sessionId*/) -> QString {
         std::set<QString> keys = {Util::ID};

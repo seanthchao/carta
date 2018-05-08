@@ -2,6 +2,11 @@
   error( "Could not find the common.pri file!" )
 }
 
+PROTOS = Data/Image/lm.helloworld.proto
+! include(Data/Image/proto_compile.pri) {
+  error( "Could not find the proto_compile.pri file!" )
+}
+
 TEMPLATE = lib
 
 ###CONFIG += staticlib
@@ -340,6 +345,8 @@ INCLUDEPATH += $$absolute_path(../../../ThirdParty/rapidjson/include)
 
 #INCLUDEPATH += ../../../ThirdParty/qwt/include
 #LIBS += -L../../../ThirdParty/qwt/lib -lqwt
+INCLUDEPATH += ../../../ThirdParty/protobuf/include
+LIBS += -L../../../ThirdParty/protobuf/lib -lprotobuf
 
 QMAKE_LFLAGS += '-Wl,-rpath,\'\$$ORIGIN/../CartaLib\''
 
