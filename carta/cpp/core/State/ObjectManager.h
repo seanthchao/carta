@@ -100,6 +100,8 @@ protected:
 
     void addCommandCallback (const QString & command, IConnector::CommandCallback);
 
+    void addMessageCallback (const QString & command, IConnector::MessageCallback);
+
     int64_t addStateCallback( const QString& statePath, const IConnector::StateChangedCallback &);
 
     /// asks the connector to schedule a redraw of the view

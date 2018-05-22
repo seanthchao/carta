@@ -9,6 +9,7 @@
 #include <QString>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <google/protobuf/message_lite.h>
 
 namespace Carta {
 namespace Lib {
@@ -33,6 +34,8 @@ public:
 
     /// signature for command callback
     typedef std::function<QString(CSR cmd, CSR params, CSR sessionId)> CommandCallback;
+
+    typedef std::function<google::protobuf::MessageLite* (CSR cmd, CSR params, CSR sessionId)> MessageCallback;
 
     /// signature for initialization callback
     typedef std::function<void(bool success)> InitializeCallback;
@@ -67,6 +70,8 @@ public:
 
     /// add a callback for a command
     virtual CallbackID addCommandCallback( const QString & cmd, const CommandCallback & cb) = 0;
+
+    virtual CallbackID addMessageCallback( const QString & cmd, const MessageCallback & cb) = 0;
 
     /// add a callback for a state change event
     virtual CallbackID addStateCallback( CSR path, const StateChangedCallback & cb) = 0;

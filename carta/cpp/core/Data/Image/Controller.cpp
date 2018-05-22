@@ -554,16 +554,23 @@ void Controller::_onInputEvent( InputEvent  ev ){
 
 void Controller::_initializeCallbacks(){
 
-    addCommandCallback( "testProtoBuf", [=] (const QString & /*cmd*/,
-            const QString & params, const QString & /*sessionId*/) -> QString {
-        QString result;
-        std::string data;
+    // addCommandCallback( "testProtoBuf", [=] (const QString & /*cmd*/,
+    //         const QString & params, const QString & /*sessionId*/) -> QString {
+    //     QString result;
+    //     std::string data;
+    //     lm::helloworld msg1;
+    //     msg1.set_id(101);
+    //     msg1.set_str("hello");
+    //     msg1.SerializeToString(&data);
+    //     result = QString::fromStdString(data);
+    //     return result;
+    // });
+    addMessageCallback( "testProtoBuf", [=] (const QString & /*cmd*/,
+            const QString & params, const QString & /*sessionId*/) -> google::protobuf::MessageLite* {
         lm::helloworld msg1;
         msg1.set_id(101);
         msg1.set_str("hello");
-        msg1.SerializeToString(&data);
-        result = QString::fromStdString(data);
-        return result;
+        return &msg1;
     });
 
 
