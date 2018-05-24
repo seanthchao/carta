@@ -35,7 +35,7 @@ public:
     /// signature for command callback
     typedef std::function<QString(CSR cmd, CSR params, CSR sessionId)> CommandCallback;
 
-    typedef std::function<google::protobuf::MessageLite* (CSR cmd, CSR params, CSR sessionId)> MessageCallback;
+    typedef std::function< std::shared_ptr<google::protobuf::MessageLite> (CSR cmd, CSR params, CSR sessionId)> MessageCallback;
 
     /// signature for initialization callback
     typedef std::function<void(bool success)> InitializeCallback;

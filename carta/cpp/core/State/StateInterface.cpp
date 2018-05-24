@@ -172,8 +172,8 @@ StateInterface::flushState ()
 {
     // Convert document to string
 
-    QString json = toString();
-    flushStateImpl (json);
+    // QString json = toString();
+    // flushStateImpl (json);
 }
 
 QString StateInterface::toString() const {
@@ -689,4 +689,3 @@ StateInterface::getMemberNames (const QString & keyString) const {
 }
 }
 }
-

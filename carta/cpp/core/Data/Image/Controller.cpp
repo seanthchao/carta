@@ -566,11 +566,13 @@ void Controller::_initializeCallbacks(){
     //     return result;
     // });
     addMessageCallback( "testProtoBuf", [=] (const QString & /*cmd*/,
-            const QString & params, const QString & /*sessionId*/) -> google::protobuf::MessageLite* {
-        lm::helloworld msg1;
-        msg1.set_id(101);
-        msg1.set_str("hello");
-        return &msg1;
+            const QString & params, const QString & /*sessionId*/) -> std::shared_ptr<google::protobuf::MessageLite> {
+        // lm::helloworld msg1;
+        std::shared_ptr<lm::helloworld> msg1(new lm::helloworld());
+        msg1->set_id(101);
+        msg1->set_str("hello");
+        auto test=static_cast<std::shared_ptr<google::protobuf::MessageLite>>(msg1);
+        return test;
     });
 
 

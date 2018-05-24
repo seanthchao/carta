@@ -42,15 +42,18 @@ void SessionDispatcher::startWebSocketChannel(){
 
     qDebug() << "SessionDispatcher listening on port" << port;
 
-    // wrap WebSocket clients in QWebChannelAbstractTransport objects
-    m_clientWrapper = new WebSocketClientWrapper(m_pWebSocketServer);
+    connect(m_pWebSocketServer, &QWebSocketServer::newConnection,
+                this, &SessionDispatcher::onNewConnection);
 
-    // setup the channel
-    m_channel = new QWebChannel();
-    QObject::connect(m_clientWrapper, &WebSocketClientWrapper::clientConnected,
-                     m_channel, &QWebChannel::connectTo);
-
-    m_channel->registerObject(QStringLiteral("QConnector"), this);
+    // // wrap WebSocket clients in QWebChannelAbstractTransport objects
+    // m_clientWrapper = new WebSocketClientWrapper(m_pWebSocketServer);
+    //
+    // // setup the channel
+    // m_channel = new QWebChannel();
+    // QObject::connect(m_clientWrapper, &WebSocketClientWrapper::clientConnected,
+    //                  m_channel, &QWebChannel::connectTo);
+    //
+    // m_channel->registerObject(QStringLiteral("QConnector"), this);
 }
 
 SessionDispatcher::SessionDispatcher()
@@ -80,15 +83,15 @@ SessionDispatcher::~SessionDispatcher()
     }
 }
 
-void SessionDispatcher::jsSendCommandSlot(const QString & sessionID, const QString & senderSession, const QString &cmd, const QString & parameter)
-{
-    // forward commands
-    NewServerConnector *connector = static_cast<NewServerConnector*>(getConnectorInMap(sessionID));
-    if (connector != nullptr){
-        emit connector->jsSendCommandSignal(sessionID, senderSession, cmd, parameter);
-    }
-    return;
-}
+// void SessionDispatcher::jsSendCommandSlot(const QString & sessionID, const QString & senderSession, const QString &cmd, const QString & parameter)
+// {
+//     // forward commands
+//     NewServerConnector *connector = static_cast<NewServerConnector*>(getConnectorInMap(sessionID));
+//     if (connector != nullptr){
+//         emit connector->jsSendCommandSignal(sessionID, senderSession, cmd, parameter);
+//     }
+//     return;
+// }
 
 IConnector* SessionDispatcher::getConnectorInMap(const QString & sessionID){
 
@@ -110,57 +113,66 @@ void SessionDispatcher::setConnectorInMap(const QString & sessionID, IConnector 
     clientList[sessionID] = connector;
     mutex.unlock();
 }
+//
+// void SessionDispatcher::jsViewUpdatedSignalForwardSlot(const QString & sessionID, const QString & viewName, const QString & img, qint64 id){
+//     emit jsViewUpdatedSignal(sessionID, viewName, img, id);
+// }
+//
+//
+// void SessionDispatcher::jsCommandResultsSignalForwardSlot(const QString & sessionID, const QString & senderSession, const QString & cmd, const QString & results, const QString & subIdentifier){
+//     emit jsCommandResultsSignal(sessionID, senderSession, cmd, results, subIdentifier);
+// }
+//
+// //TODO implement later
+// void SessionDispatcher::jsSendKeepAlive(){
+// //    qDebug() << "get keepalive packet !!!!";
+// }
 
-void SessionDispatcher::jsViewUpdatedSignalForwardSlot(const QString & sessionID, const QString & viewName, const QString & img, qint64 id){
-    emit jsViewUpdatedSignal(sessionID, viewName, img, id);
-}
-
-
-void SessionDispatcher::jsCommandResultsSignalForwardSlot(const QString & sessionID, const QString & senderSession, const QString & cmd, const QString & results, const QString & subIdentifier){
-    emit jsCommandResultsSignal(sessionID, senderSession, cmd, results, subIdentifier);
-}
-
-//TODO implement later
-void SessionDispatcher::jsSendKeepAlive(){
-//    qDebug() << "get keepalive packet !!!!";
-}
-
-void SessionDispatcher::newSessionCreatedSlot(const QString & sessionID)
+void SessionDispatcher::onNewConnection()
 {
     qDebug() << "new Client Session !!!!";
 
-    if (getConnectorInMap(sessionID) != nullptr){
-        qDebug()<<"Find, the value is !!!!!";
-        return;
-    }
+    // if (getConnectorInMap(sessionID) != nullptr){
+    //     qDebug()<<"Find, the value is !!!!!";
+    //     return;
+    // }
 
-    NewServerConnector *connector =  new NewServerConnector();
+    QString sessionID = "0";
+
+    QWebSocket* socket = m_pWebSocketServer->nextPendingConnection();
+
+    NewServerConnector *connector =  new NewServerConnector(socket);
 
     setConnectorInMap(sessionID, connector);
 
     connect(connector, SIGNAL(startViewerSignal(const QString &)), connector, SLOT(startViewerSlot(const QString &)));
+    // connect(connector,
+    //         SIGNAL(jsSendCommandSignal(const QString &, const QString &, const QString &, const QString &)),
+    //         connector,
+    //         SLOT(jsSendCommandSlot(const QString &, const QString &, const QString &, const QString &)));
+    //
+    // // setup view size
+    // connect(connector,
+    //         SIGNAL(jsUpdateViewSizeSignal(const QString &, const QString &, int, int) ),
+    //         connector,
+    //         SLOT( jsUpdateViewSizeSlot(const QString &, const QString &, int, int)));
+    //
+    //
+    // connect(connector,
+    //         SIGNAL(jsCommandResultsSignal(const QString &, const QString &, const QString &, const QString &, const QString &)),
+    //         this,
+    //         SLOT(jsCommandResultsSignalForwardSlot(const QString &, const QString &, const QString &, const QString &, const QString &))
+    //         );
+    //
+    // connect(connector,
+    //         SIGNAL(jsViewUpdatedSignal(const QString &,  const QString &, const QString &, qint64)),
+    //         this,
+    //         SLOT(jsViewUpdatedSignalForwardSlot(const QString &, const QString &, const QString &, qint64))
+    //         );
     connect(connector,
-            SIGNAL(jsSendCommandSignal(const QString &, const QString &, const QString &, const QString &)),
-            connector,
-            SLOT(jsSendCommandSlot(const QString &, const QString &, const QString &, const QString &)));
-
-    // setup view size
-    connect(connector,
-            SIGNAL(jsUpdateViewSizeSignal(const QString &, const QString &, int, int) ),
-            connector,
-            SLOT( jsUpdateViewSizeSlot(const QString &, const QString &, int, int)));
-
-
-    connect(connector,
-            SIGNAL(jsCommandResultsSignal(const QString &, const QString &, const QString &, const QString &, const QString &)),
+            SIGNAL(jsMessageResultsSignal(QWebSocket*, const QString &)),
             this,
-            SLOT(jsCommandResultsSignalForwardSlot(const QString &, const QString &, const QString &, const QString &, const QString &))
-            );
-
-    connect(connector,
-            SIGNAL(jsViewUpdatedSignal(const QString &,  const QString &, const QString &, qint64)),
-            this,
-            SLOT(jsViewUpdatedSignalForwardSlot(const QString &, const QString &, const QString &, qint64))
+            SLOT(forwardTextMessageResults(QWebSocket*, const QString & ))
             );
 
     // create a simple thread
@@ -178,16 +190,73 @@ void SessionDispatcher::newSessionCreatedSlot(const QString & sessionID)
     emit connector->startViewerSignal(sessionID);
 }
 
-void SessionDispatcher::jsUpdateViewSizeSlot(const QString & sessionID, const QString & viewName, int width, int height)
-{
-    // forward commands
-    NewServerConnector *connector = static_cast<NewServerConnector*>(getConnectorInMap(sessionID));
-    if (connector != nullptr){
-        emit connector->jsUpdateViewSizeSignal(sessionID, viewName, width, height);
-    }
-
-    return;
+void SessionDispatcher::forwardTextMessageResults(QWebSocket* ws, const QString & result){
+    ws->sendTextMessage(result);
 }
+
+// void SessionDispatcher::newSessionCreatedSlot(const QString & sessionID)
+// {
+//     qDebug() << "new Client Session !!!!";
+//
+//     if (getConnectorInMap(sessionID) != nullptr){
+//         qDebug()<<"Find, the value is !!!!!";
+//         return;
+//     }
+//
+//     NewServerConnector *connector =  new NewServerConnector();
+//
+//     setConnectorInMap(sessionID, connector);
+//
+//     connect(connector, SIGNAL(startViewerSignal(const QString &)), connector, SLOT(startViewerSlot(const QString &)));
+//     connect(connector,
+//             SIGNAL(jsSendCommandSignal(const QString &, const QString &, const QString &, const QString &)),
+//             connector,
+//             SLOT(jsSendCommandSlot(const QString &, const QString &, const QString &, const QString &)));
+//
+//     // setup view size
+//     connect(connector,
+//             SIGNAL(jsUpdateViewSizeSignal(const QString &, const QString &, int, int) ),
+//             connector,
+//             SLOT( jsUpdateViewSizeSlot(const QString &, const QString &, int, int)));
+//
+//
+//     connect(connector,
+//             SIGNAL(jsCommandResultsSignal(const QString &, const QString &, const QString &, const QString &, const QString &)),
+//             this,
+//             SLOT(jsCommandResultsSignalForwardSlot(const QString &, const QString &, const QString &, const QString &, const QString &))
+//             );
+//
+//     connect(connector,
+//             SIGNAL(jsViewUpdatedSignal(const QString &,  const QString &, const QString &, qint64)),
+//             this,
+//             SLOT(jsViewUpdatedSignalForwardSlot(const QString &, const QString &, const QString &, qint64))
+//             );
+//
+//     // create a simple thread
+//     QThread* newThread = new QThread();
+// //        connector->selfThread = newThread;
+//
+//     // let the new thread handle its events
+//     connector->moveToThread(newThread);
+//     newThread->setObjectName(sessionID);
+//
+//     // start new thread's event loop
+//     newThread->start();
+//
+//     //trigger signal
+//     emit connector->startViewerSignal(sessionID);
+// }
+//
+// void SessionDispatcher::jsUpdateViewSizeSlot(const QString & sessionID, const QString & viewName, int width, int height)
+// {
+//     // forward commands
+//     NewServerConnector *connector = static_cast<NewServerConnector*>(getConnectorInMap(sessionID));
+//     if (connector != nullptr){
+//         emit connector->jsUpdateViewSizeSignal(sessionID, viewName, width, height);
+//     }
+//
+//     return;
+// }
 
 //********* will comment the below later
 

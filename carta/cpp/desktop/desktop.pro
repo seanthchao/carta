@@ -2,6 +2,11 @@
   error( "Could not find the common.pri file!" )
 }
 
+PROTOS = ../core/Data/Image/lm.helloworld.proto
+! include(../core/Data/Image/proto_compile.pri) {
+  error( "Could not find the proto_compile.pri file!" )
+}
+
 QT      +=  network widgets xml websockets webchannel
 # QT      +=  webkitwidgets
 
@@ -35,6 +40,9 @@ RESOURCES = resources.qrc
 
 INCLUDEPATH += ../../../ThirdParty/rapidjson/include
 INCLUDEPATH += ../core
+
+INCLUDEPATH += ../../../ThirdParty/protobuf/include
+LIBS += -L../../../ThirdParty/protobuf/lib -lprotobuf
 
 unix: LIBS += -L$$OUT_PWD/../core/ -lcore
 unix: LIBS += -L$$OUT_PWD/../CartaLib/ -lCartaLib
