@@ -169,11 +169,17 @@ void SessionDispatcher::onNewConnection()
     //         this,
     //         SLOT(jsViewUpdatedSignalForwardSlot(const QString &, const QString &, const QString &, qint64))
     //         );
+    // connect(connector,
+    //         SIGNAL(jsMessageResultsSignal(QWebSocket*, const QString &)),
+    //         this,
+    //         SLOT(forwardTextMessageResults(QWebSocket*, const QString & ))
+    //         );
     connect(connector,
-            SIGNAL(jsMessageResultsSignal(QWebSocket*, const QString &)),
+            SIGNAL(jsMessageResultsSignal(QWebSocket*, const QByteArray &)),
             this,
-            SLOT(forwardTextMessageResults(QWebSocket*, const QString & ))
+            SLOT(forwardTextMessageResults(QWebSocket*, const QByteArray & ))
             );
+
 
     // create a simple thread
     QThread* newThread = new QThread();
@@ -190,8 +196,13 @@ void SessionDispatcher::onNewConnection()
     emit connector->startViewerSignal(sessionID);
 }
 
-void SessionDispatcher::forwardTextMessageResults(QWebSocket* ws, const QString & result){
-    ws->sendTextMessage(result);
+// void SessionDispatcher::forwardTextMessageResults(QWebSocket* ws, const QString & result){
+//     ws->sendTextMessage(result);
+// }
+
+void SessionDispatcher::forwardTextMessageResults(QWebSocket* ws, const QByteArray & result){
+    qint64 bytes_sent = ws->sendBinaryMessage(result);
+    qDebug() << "Bytes sent" << bytes_sent;
 }
 
 // void SessionDispatcher::newSessionCreatedSlot(const QString & sessionID)

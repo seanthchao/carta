@@ -111,23 +111,37 @@ void NewServerConnector::processTextMessage(QString message){
     if (m_client){
         qDebug() << "Message received:" << message;
         auto & allCallbacks = m_messageCallbackMap[ cmd];
+        qDebug() << "cmd:" << cmd;
 
         // QString result;
-        std::string data;
+        // std::string data_str;
         std::shared_ptr<google::protobuf::MessageLite> msg;
+        size_t msg_size;
 
         for( auto & cb : allCallbacks ) {
             msg = cb( message, "", "1");
         }
-        msg->SerializeToString(&data);
-        const QString result = QString::fromStdString(data);
+        msg_size = msg->ByteSizeLong();
+        qDebug() << "Message size(bytes):" << msg_size;
+        QByteArray data_bin(msg_size, 1);
+//        void *data_bin = malloc(msg_size);
+        // msg->SerializeToString(&data_str);
+        msg->SerializeToArray(data_bin.data(), msg_size);
+
+
 
         if( allCallbacks.size() == 0) {
             qWarning() << "JS command has no server listener:" << message;
         }
         // m_client->sendTextMessage(message);
         // m_client->sendTextMessage(result);
+        // const QString result = QString::fromStdString(data_str);
+        // emit jsMessageResultsSignal(m_client, result);
+        const QByteArray result = data_bin;
+        qDebug() << "Message sent:" << result;
         emit jsMessageResultsSignal(m_client, result);
+
+
     }
     else {
         qFatal("Please assign a client.");

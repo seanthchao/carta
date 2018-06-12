@@ -90,7 +90,8 @@ signals:
 
     //new arch
     void startViewerSignal(const QString & sessionID);
-    void jsMessageResultsSignal(QWebSocket* socket, const QString & result);
+    // void jsMessageResultsSignal(QWebSocket* socket, const QString & result);
+    void jsMessageResultsSignal(QWebSocket* socket, const QByteArray & result);
     // void jsSendCommandSignal(const QString & sessionID, const QString & senderSession, const QString &cmd, const QString & parameter);
     // void jsUpdateViewSizeSignal(const QString & sessionID, const QString & viewName, int width, int height);
 

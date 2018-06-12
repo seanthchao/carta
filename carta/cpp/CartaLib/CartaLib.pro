@@ -136,3 +136,5 @@ OTHER_FILES += \
 
 DISTFILES += \
     VectorGraphics/vg.txt
+
+INCLUDEPATH += ../../../ThirdParty/protobuf/include

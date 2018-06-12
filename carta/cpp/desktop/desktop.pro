@@ -2,10 +2,10 @@
   error( "Could not find the common.pri file!" )
 }
 
-PROTOS = ../core/Data/Image/lm.helloworld.proto
-! include(../core/Data/Image/proto_compile.pri) {
-  error( "Could not find the proto_compile.pri file!" )
-}
+#PROTOS = ../core/Data/Image/lm.helloworld.proto
+#! include(../core/Data/Image/proto_compile.pri) {
+#  error( "Could not find the proto_compile.pri file!" )
+#}
 
 QT      +=  network widgets xml websockets webchannel
 # QT      +=  webkitwidgets

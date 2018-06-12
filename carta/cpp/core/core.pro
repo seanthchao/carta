@@ -2,8 +2,8 @@
   error( "Could not find the common.pri file!" )
 }
 
-PROTOS = Data/Image/lm.helloworld.proto
-! include(Data/Image/proto_compile.pri) {
+PROTOS = ../core/Data/Image/lm.helloworld.proto
+! include(../core/Data/Image/proto_compile.pri) {
   error( "Could not find the proto_compile.pri file!" )
 }
 

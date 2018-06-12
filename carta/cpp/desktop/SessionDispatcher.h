@@ -83,7 +83,8 @@ public:
 private slots:
     // no use. Qt's built-in WebSocket, not we use its wrapper, QWebChannel made by Qt
    void onNewConnection();
-   void forwardTextMessageResults(QWebSocket* socket, const QString & result);
+//   void forwardTextMessageResults(QWebSocket* socket, const QString & result);
+   void forwardTextMessageResults(QWebSocket* socket, const QByteArray & result);
    // void processTextMessage(QString message);
    // void processBinaryMessage(QByteArray message);
    // void socketDisconnected();
