@@ -154,9 +154,11 @@ void NewServerConnector::processBinaryMessage(QByteArray message){
     // if (pClient) {
     //     pClient->sendTextMessage(message);
     // }
+    // QString controllerID = this->viewer.m_viewManager->registerView("pluginId:ImageViewer,index:0");
     if (m_client){
         qDebug() << "Binary Message received:" << message;
-        m_client->sendBinaryMessage(message);
+        emit jsMessageResultsSignal(m_client, message);
+        // m_client->sendBinaryMessage(message);
     }
     else {
         qFatal("Please assign a client.");
